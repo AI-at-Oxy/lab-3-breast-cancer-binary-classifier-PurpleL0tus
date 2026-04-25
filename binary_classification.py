@@ -28,8 +28,10 @@ def sigmoid(z):
     Returns:
         scalar output in (0, 1)
     """
-    raise NotImplementedError("TODO: implement sigmoid")
+    a = torch.exp(-z)
+    sigmoid = 1 / (1 + a)
 
+    return sigmoid
 
 def forward(x, w, b):
     """
@@ -46,10 +48,10 @@ def forward(x, w, b):
     Returns:
         scalar prediction in (0, 1)
     """
-    z = None  # TODO: compute z = w · x + b
-    y_hat = None  # TODO: apply sigmoid to z
-    raise NotImplementedError("TODO: implement forward pass")
+    z = torch.dot(w, x) + b  # TODO: compute z = w · x + b
+    y_hat = sigmoid(z)  # TODO: apply sigmoid to z
 
+    return y_hat
 
 def compute_loss(y, y_hat):
     """
@@ -64,8 +66,8 @@ def compute_loss(y, y_hat):
     Returns:
         scalar loss
     """
-    raise NotImplementedError("TODO: implement compute_loss")
-
+    L = (1/2) * (y_hat - y) ** 2
+    return L
 
 def compute_gradients(x, y, y_hat):
     """
@@ -87,15 +89,14 @@ def compute_gradients(x, y, y_hat):
         dw: (n,) gradient for weights
         db: scalar gradient for bias
     """
-    error = None  # TODO: compute error = ŷ - y
-    sigmoid_deriv = None  # TODO: compute sigmoid derivative = ŷ(1 - ŷ)
-    delta = None  # TODO: compute δ = error × sigmoid_deriv
+    error = y_hat - y  # TODO: compute error = ŷ - y
+    sigmoid_deriv = y_hat * (1 - y_hat)  # TODO: compute sigmoid derivative = ŷ(1 - ŷ)
+    delta = error * sigmoid_deriv  # TODO: compute δ = error × sigmoid_deriv
 
-    dw = None  # TODO: compute ∂L/∂w = δ × x
-    db = None  # TODO: compute ∂L/∂b = δ
+    dw = delta * x  # TODO: compute ∂L/∂w = δ × x
+    db = delta  # TODO: compute ∂L/∂b = δ
 
-    raise NotImplementedError("TODO: implement compute_gradients")
-
+    return dw, db
 
 # =============================================================================
 # PART 2: Data Loading and Preprocessing (provided)
@@ -162,17 +163,17 @@ def train(X_train, y_train, alpha=0.01, n_epochs=100, verbose=True):
             y_i = y_train[i]
             
             # Forward pass: compute prediction for this sample
-            y_hat = None  # TODO: call forward()
+            y_hat = forward(x_i, w, b)  # TODO: call forward()
 
             # Compute loss
             epoch_loss += compute_loss(y_i, y_hat).item()
 
             # Compute gradients
-            dw, db = None, None  # TODO: call compute_gradients()
+            dw, db = compute_gradients(x_i, y_i, y_hat)  # TODO: call compute_gradients()
 
             # Update parameters using gradient descent
-            w = None  # TODO: update w
-            b = None  # TODO: update b
+            w = w - alpha * dw  # TODO: update w
+            b = b - alpha * db  # TODO: update b
         
         avg_loss = epoch_loss / len(y_train)
         losses.append(avg_loss)
